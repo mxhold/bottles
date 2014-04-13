@@ -15,16 +15,7 @@ end
 class Verse
   attr_reader :verse_number
   def initialize(number)
-    case number
-    when 0
-      @verse_number = VerseNumber0.new(number)
-    when 1
-      @verse_number = VerseNumber1.new(number)
-    when 2
-      @verse_number = VerseNumber2.new(number)
-    else
-      @verse_number = VerseNumber.new(number)
-    end
+    @verse_number = VerseNumber.for(number)
   end
 
   def to_s
@@ -71,6 +62,15 @@ class VerseNumber
   attr_reader :number, :verse_number
   def initialize(number)
     @number = number
+  end
+
+  def self.for(number)
+    verse_class = "VerseNumber#{number}"
+    if Object.const_defined?(verse_class)
+      Object.const_get(verse_class)
+    else
+      VerseNumber
+    end.new(number)
   end
 
   def act
