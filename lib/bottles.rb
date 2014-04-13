@@ -12,15 +12,20 @@ class Bottles
   end
 end
 
+require 'forwardable'
 class Verse
+  extend Forwardable
   attr_reader :verse_number
   def initialize(number)
     @verse_number = VerseNumber.for(number)
   end
 
+  def_delegators :verse_number, :act, :inventory, :pronoun, :container,
+    :next_inventory, :next_container
+
   def to_s
-    "#{current_inventory} #{current_container} #{liquid} #{location}, ".capitalize +
-    "#{current_inventory} #{current_container} of beer.\n" +
+    "#{inventory} #{container} #{liquid} #{location}, ".capitalize +
+    "#{inventory} #{container} #{liquid}.\n" +
     "#{act}, " +
     "#{next_inventory} #{next_container} #{liquid} #{location}.\n"
   end
@@ -32,64 +37,48 @@ class Verse
   def location
     "on the wall"
   end
-
-  def act
-    verse_number.act
-  end
-
-  def current_inventory
-    verse_number.current_inventory
-  end
-
-  def next_inventory
-    verse_number.next_inventory
-  end
-
-  def pronoun
-    verse_number.pronoun
-  end
-
-  def current_container
-    verse_number.current_container
-  end
-
-  def next_container
-    verse_number.next_container
-  end
 end
 
 class VerseNumber
-  attr_reader :number, :verse_number
+  attr_reader :number
   def initialize(number)
     @number = number
   end
 
-  def self.for(number)
-    VerseNumberFactory.get_instance(number)
+  def self.for(number, factory = VerseNumberFactory)
+    factory.get_instance(number)
   end
 
-  def act
-    "Take #{pronoun} down and pass it around"
+  def next_verse_number
+    number.pred
   end
 
-  def current_inventory
+  def inventory
     number
-  end
-
-  def next_inventory
-    number - 1
   end
 
   def pronoun
     "one"
   end
 
-  def current_container
+  def act
+    "Take #{pronoun} down and pass it around"
+  end
+
+  def container
     "bottles"
   end
 
+  def next_inventory
+    succ.inventory
+  end
+
   def next_container
-    "bottles"
+    succ.container
+  end
+
+  def succ
+    VerseNumber.for(next_verse_number)
   end
 end
 
@@ -98,32 +87,22 @@ class VerseNumber0 < VerseNumber
     "Go to the store and buy some more"
   end
 
-  def current_inventory
+  def inventory
     "no more"
   end
 
-  def next_inventory
+  def next_verse_number
     99
   end
 end
 
 class VerseNumber1 < VerseNumber
-  def current_container
+  def container
     "bottle"
   end
 
   def pronoun
     "it"
-  end
-
-  def next_inventory
-    "no more"
-  end
-end
-
-class VerseNumber2 < VerseNumber
-  def next_container
-    "bottle"
   end
 end
 
