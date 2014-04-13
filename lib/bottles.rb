@@ -65,12 +65,7 @@ class VerseNumber
   end
 
   def self.for(number)
-    verse_class = "VerseNumber#{number}"
-    if Object.const_defined?(verse_class)
-      Object.const_get(verse_class)
-    else
-      VerseNumber
-    end.new(number)
+    VerseNumberFactory.get_instance(number)
   end
 
   def act
@@ -129,5 +124,41 @@ end
 class VerseNumber2 < VerseNumber
   def next_container
     "bottle"
+  end
+end
+
+class VerseNumberFactory
+  def self.get_instance(number)
+    NumberedClassFactory.get_instance(VerseNumber, number)
+  end
+end
+
+class NumberedClassFactory
+  attr_reader :default_class, :number
+  def initialize(default_class, number)
+    @default_class = default_class
+    @number = number
+  end
+
+  def self.get_instance(default_class, number)
+    new(default_class, number).get_instance
+  end
+
+  def get_instance
+    get_klass.new(number)
+  end
+
+  private
+
+  def get_klass
+   if Object.const_defined?(klass_string)
+     Object.const_get(klass_string)
+   else
+     default_class
+   end
+  end
+
+  def klass_string
+   "#{default_class}#{number}"
   end
 end
