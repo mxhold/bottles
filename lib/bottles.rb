@@ -13,81 +13,121 @@ class Bottles
 end
 
 class Verse
-  attr_reader :number
+  attr_reader :verse_number
   def initialize(number)
-    @number = number
+    case number
+    when 0
+      @verse_number = VerseNumber0.new(number)
+    when 1
+      @verse_number = VerseNumber1.new(number)
+    when 2
+      @verse_number = VerseNumber2.new(number)
+    else
+      @verse_number = VerseNumber.new(number)
+    end
   end
 
   def to_s
     "#{current_inventory} #{current_container} #{liquid} #{location}, ".capitalize +
-    "#{current_inventory} #{current_container} #{liquid}.\n" +
-    "#{action}, " +
+    "#{current_inventory} #{current_container} of beer.\n" +
+    "#{act}, " +
     "#{next_inventory} #{next_container} #{liquid} #{location}.\n"
   end
 
-  private
-
   def liquid
-    'of beer'
+    "of beer"
   end
 
   def location
-    'on the wall'
+    "on the wall"
+  end
+
+  def act
+    verse_number.act
   end
 
   def current_inventory
-    case number
-    when 0
-      'no more'
-    else
-      number
-    end
+    verse_number.current_inventory
   end
 
   def next_inventory
-    case number
-    when 0
-      99
-    when 1
-      'no more'
-    else
-      number - 1
-    end
-  end
-
-  def current_container
-    case number
-    when 1
-      'bottle'
-    else
-      'bottles'
-    end
-  end
-
-  def next_container
-    case number
-    when 2
-      'bottle'
-    else
-      'bottles'
-    end
-  end
-
-  def action
-    case number
-    when 0
-      "Go to the store and buy some more"
-    else
-      "Take #{pronoun} down and pass it around"
-    end
+    verse_number.next_inventory
   end
 
   def pronoun
-    case number
-    when 1
-      'it'
-    else
-      'one'
-    end
+    verse_number.pronoun
+  end
+
+  def current_container
+    verse_number.current_container
+  end
+
+  def next_container
+    verse_number.next_container
+  end
+end
+
+class VerseNumber
+  attr_reader :number, :verse_number
+  def initialize(number)
+    @number = number
+  end
+
+  def act
+    "Take #{pronoun} down and pass it around"
+  end
+
+  def current_inventory
+    number
+  end
+
+  def next_inventory
+    number - 1
+  end
+
+  def pronoun
+    "one"
+  end
+
+  def current_container
+    "bottles"
+  end
+
+  def next_container
+    "bottles"
+  end
+end
+
+class VerseNumber0 < VerseNumber
+  def act
+    "Go to the store and buy some more"
+  end
+
+  def current_inventory
+    "no more"
+  end
+
+  def next_inventory
+    99
+  end
+end
+
+class VerseNumber1 < VerseNumber
+  def current_container
+    "bottle"
+  end
+
+  def pronoun
+    "it"
+  end
+
+  def next_inventory
+    "no more"
+  end
+end
+
+class VerseNumber2 < VerseNumber
+  def next_container
+    "bottle"
   end
 end
