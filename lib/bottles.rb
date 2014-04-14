@@ -13,121 +13,119 @@ class Bottles
 end
 
 class Verse
-  attr_reader :verse_number
+  attr_reader :number
   def initialize(number)
-    case number
-    when 0
-      @verse_number = VerseNumber0.new(number)
-    when 1
-      @verse_number = VerseNumber1.new(number)
-    when 2
-      @verse_number = VerseNumber2.new(number)
-    else
-      @verse_number = VerseNumber.new(number)
-    end
+    @number = number.to_beer_bottle
   end
 
   def to_s
-    "#{current_inventory} #{current_container} #{liquid} #{location}, ".capitalize +
-    "#{current_inventory} #{current_container} of beer.\n" +
-    "#{act}, " +
-    "#{next_inventory} #{next_container} #{liquid} #{location}.\n"
+    "#{number} #{number.location}, ".capitalize +
+    "#{number}.\n" +
+    "#{number.action}, " +
+    "#{number.next} #{number.location}.\n"
+  end
+end
+
+require 'delegate'
+
+class Fixnum
+  def to_bottle
+    case self
+    when 0
+      BottleFixnum0.new(self)
+    when 1
+      BottleFixnum1.new(self)
+    else
+      BottleFixnum.new(self)
+    end
+  end
+
+  def to_beer_bottle
+    case self
+    when 0
+      BeerSongFixnum0.new(self.to_bottle)
+    when 1
+      BeerSongFixnum1.new(self.to_bottle)
+    else
+      BeerSongFixnum.new(self.to_bottle)
+    end
+  end
+end
+
+class BeerSongFixnum < SimpleDelegator
+  def number
+    __getobj__
+  end
+
+  def to_s
+    __getobj__.to_s + " " + liquid
   end
 
   def liquid
-    "of beer"
+    'of beer'
   end
 
   def location
-    "on the wall"
+    'on the wall'
   end
 
-  def act
-    verse_number.act
-  end
-
-  def current_inventory
-    verse_number.current_inventory
-  end
-
-  def next_inventory
-    verse_number.next_inventory
-  end
-
-  def pronoun
-    verse_number.pronoun
-  end
-
-  def current_container
-    verse_number.current_container
-  end
-
-  def next_container
-    verse_number.next_container
-  end
-end
-
-class VerseNumber
-  attr_reader :number, :verse_number
-  def initialize(number)
-    @number = number
-  end
-
-  def act
+  def action
     "Take #{pronoun} down and pass it around"
   end
 
-  def current_inventory
-    number
+  def next
+    (__getobj__.pred % 100).to_beer_bottle
   end
 
-  def next_inventory
-    number - 1
-  end
+  private
 
   def pronoun
-    "one"
-  end
-
-  def current_container
-    "bottles"
-  end
-
-  def next_container
-    "bottles"
+    'one'
   end
 end
 
-class VerseNumber0 < VerseNumber
-  def act
+class BeerSongFixnum1 < BeerSongFixnum
+  private
+
+  def pronoun
+    'it'
+  end
+end
+
+class BeerSongFixnum0 < BeerSongFixnum
+  def action
     "Go to the store and buy some more"
   end
+end
 
-  def current_inventory
-    "no more"
+class BottleFixnum < SimpleDelegator
+  alias_method :number, :__getobj__
+
+  def to_s
+    "#{name} #{unit}"
   end
 
-  def next_inventory
-    99
+  def name
+    __getobj__
+  end
+
+  def unit
+    'bottles'
+  end
+
+  def pred
+    number.pred.to_bottle
   end
 end
 
-class VerseNumber1 < VerseNumber
-  def current_container
-    "bottle"
-  end
-
-  def pronoun
-    "it"
-  end
-
-  def next_inventory
-    "no more"
+class BottleFixnum1 < BottleFixnum
+  def unit
+    'bottle'
   end
 end
 
-class VerseNumber2 < VerseNumber
-  def next_container
-    "bottle"
+class BottleFixnum0 < BottleFixnum
+  def name
+    'no more'
   end
 end
