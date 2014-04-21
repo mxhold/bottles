@@ -58,7 +58,7 @@ class BeerSongFixnum < SimpleDelegator
   end
 
   def to_s
-    __getobj__.to_s + " " + liquid
+    number.to_s + " " + liquid
   end
 
   def liquid
@@ -74,7 +74,7 @@ class BeerSongFixnum < SimpleDelegator
   end
 
   def next
-    (__getobj__.pred % 100).to_beer_bottle
+    (number.pred % 100).to_beer_bottle
   end
 
   private
@@ -106,7 +106,7 @@ class BottleFixnum < SimpleDelegator
   end
 
   def name
-    __getobj__
+    number
   end
 
   def unit
